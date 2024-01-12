@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+		<waitStrategyType>blocking</waitStrategyType>
+		<destination>${loghost:-picpay-logstash-aws.dev.io:5046}</destination>
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder">
+			<jsonGeneratorDecorator class="net.logstash.logback.mask.MaskingJsonGeneratorDecorator">
+    			<defaultMask>****</defaultMask>
+    			<path>cpf</path>
+	
+    		</jsonGeneratorDecorator>
+			<providers>
+            	<!-- time para o Elastic indexar -->
+				<timestamp>
+					<timeZone>UTC</timeZone>
+				</timestamp>
+				<!-- Logs do Spring Sleuth -->
+				<mdc>
+					<excludeMdcKeyName>traceId</excludeMdcKeyName>
+                    <excludeMdcKeyName>spanId</excludeMdcKeyName>
+                    <excludeMdcKeyName>parentId</excludeMdcKeyName>
+                    <excludeMdcKeyName>spanExportable</excludeMdcKeyName>
+                    <excludeMdcKeyName>X-B3-TraceId</excludeMdcKeyName>
+                    <excludeMdcKeyName>X-B3-SpanId</excludeMdcKeyName>
+                    <excludeMdcKeyName>X-B3-ParentSpanId</excludeMdcKeyName>
+                    <excludeMdcKeyName>X-Span-Export</excludeMdcKeyName>
+				</mdc>	
+				<pattern>
+					<pattern>
+						{
+							"ecs.version": "1.6",
+							"transaction.id": "%mdc{x-pic-pay-transaction-id}",
+							"service.version" : "1.0",
+						    "organization.name": "picpay",
+						    "service.name": "${appName}",
+						    "log.level": "%level",
+						    "log.logger": "%caller_class_name",				
+							"message": "%message",
+							"log.logger": "",
+							"stackTrace": "%exception",
+							"traceId": "%mdc{X-B3-TraceId}",
+                            "spanId": "%mdc{X-B3-SpanId}",
+                            "deviceId": "%mdc{deviceId}",
+                            "x-pic-pay-correlation-id": "%mdc{x-pic-pay-correlation-id}",
+                            "x-pic-pay-transaction-id": "%mdc{x-pic-pay-transaction-id}",
+                            "x-session-id": "%mdc{x-session-id}",
+                            "ResponseTime": "%mdc{ResponseTime}"
+                         }
+					</pattern>
+				</pattern>
+				<!--  Incluindo exception stack trace -->
+				<stackTrace />
+			</providers>
+		</encoder>
+	</appender>
+
+</included>

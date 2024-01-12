@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	<!--IDENTIFICA ENCERRAMENTO DA JVM, E SUBMETE A FILA DE LOGS FUTURAS-->
+	<shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+	<springProperty scope="context" name="appName" source="spring.application.name" />
+	<springProperty scope="context" name="nivelLog" source="nivel.log" />
+	<springProperty scope="context" name="loghost" source="picpay.logstash.server.destination" />
+	
+	<include resource="logback/logback-picpay-logstash.xml" />
+	
+	<include resource="logback/logback-picpay-root-level.xml" />
+
+</included>
